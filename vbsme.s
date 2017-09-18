@@ -850,8 +850,40 @@ exitRight:
 
 
 down:
+    add     $t2, $zero, $s4     # t2 = i = top
+loopDown:
+    blt     $s5, $t2, exitDown  # if bottom < i, exit
+    jal     sad                 # Assume SAD will be in $t9 after returning
+    bge     $t9, $t3, skipDown  # if tempSum >= minSum, branch
+    add     $t3, $t9, $zero     # minSum = tempSum
+    add     $v0, $t2, $zero     # v0 = i
+    add     $v1, $s7, $zero     # v1 = right
+skipDown:
+    addi    $t2, $t2, 1         # i++
+    j       loopDown            # loop
+exitDown:
+    addi    $s7, $s7, -1        # right--
+    addi    $t1, $zero, 2       # dir = 2
+    j       mainLoop
 
 left:
+    add     $t2, $zero, $s7     # t2 = i = right
+loopLeft:
+    blt     $t2, $s6, exitLeft  # if i < left, exit
+    jal     sad                 # Assume SAD will be in $t9 after returning
+    bge     $t9, $t3, skipLeft  # if tempSum >= minSum, branch
+    add     $t3, $t9, $zero     # minSum = tempSum
+    add     $v0, $s5, $zero     # v0 = bottom
+    add     $v1, $t2, $zero     # v1 = i
+skipLeft:
+    addi    $t2, $t2, 1         # i++
+    j       loopLeft            # loop
+exitLeft:
+    addi    $s5, $s5, -1        # bottom--
+    addi    $t1, $zero, 3       # dir = 3
+    j       mainLoop
+
+
 
 sad:
 
