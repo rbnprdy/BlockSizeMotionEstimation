@@ -778,15 +778,28 @@ vbsme:
     li      $v1, 0
 
     # insert your code here
-    li      $t0, 4
-    li      $t1, 4
     lw      $s0, 0($a0)
     lw      $s1, 4($a0)
     lw      $s2, 8($a0)
     lw      $s3, 12($a0)
+	
+	add		$s4, $zero, $zer0
+	sub		$s5, $s0, $s2
+	add		$s6, $zero, $zero
+	sub		$s7, $s1, $s3
 
     # Assume s0 has frameHeight, s1 has frameLength, s2 has windowHeight, s3 has windowLength
-    # Assume t0 has yPos and t1 has xPos
+    # Assume s4 has the min height, s5 has the max height, s6 has the min width, and s7 has the max width 
+	# Assume t0 has yPos and t1 has xPos
+	
+mainLoop:
+	#while(!(top>bottom) || !(left>right))
+	# FIXME change following registers: $t0
+	slt		$t0, $s5, $s4		#bottom < top
+	bne		$t0, $zero, exit	#if !(bottom < top) exit
+	slt		$t0, $s7, $s6		#right < left
+	bne		$t0, $zero, exit	#if !(right < top) exit
+
 sad:
 
     sll     $t0, $t0, 2         # multiply yPos by 4 to get byte index
