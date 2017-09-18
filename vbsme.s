@@ -788,6 +788,8 @@ vbsme:
 	add		$s6, $zero, $zero
 	sub		$s7, $s1, $s3
 
+    li      $t1, 0          # set direction to 0
+
     # Assume s0 has frameHeight, s1 has frameLength, s2 has windowHeight, s3 has windowLength
     # Assume s4 has the min height, s5 has the max height, s6 has the min width, and s7 has the max width 
 	# Assume t0 has yPos and t1 has xPos
@@ -799,6 +801,14 @@ mainLoop:
 	bne		$t0, $zero, exit	#if !(bottom < top) exit
 	slt		$t0, $s7, $s6		#right < left
 	bne		$t0, $zero, exit	#if !(right < top) exit
+
+    beq     $t1, $zero, right
+    addi    $t0, $zero, 1
+    beq     $t1, $t0, down
+    addi    $t0, $t0, 1
+    beq     $t1, $t0, left
+    addi    $t0, $t0, 1
+    beq     $t1, $t0, up
 
 sad:
 
