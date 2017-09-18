@@ -846,7 +846,7 @@ exitRight:
 	addi    $s4, $s4, 1
 	addi    $t1, $zero, 1
     j       mainLoop
-	
+
 down:
     add     $t2, $zero, $s4     # t2 = i = top
 loopDown:
@@ -881,6 +881,8 @@ exitLeft:
     addi    $t1, $zero, 3       # dir = 3
     j       mainLoop
 
+exit:
+    jr      $ra
 
 
 sad:
