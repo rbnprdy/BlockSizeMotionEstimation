@@ -778,12 +778,13 @@ vbsme:
     li      $v1, 0
 
     # insert your code here
+
     lw      $s0, 0($a0)
     lw      $s1, 4($a0)
     lw      $s2, 8($a0)
     lw      $s3, 12($a0)
 
-    add		$s4, $zero, $zer0
+    add		$s4, $zero, $zero
 	sub		$s5, $s0, $s2
 	add		$s6, $zero, $zero
 	sub		$s7, $s1, $s3
@@ -801,7 +802,7 @@ mainLoop:
 	slt		$t2, $s5, $s4		#bottom < top
 	bne		$t2, $zero, exit	#if !(bottom < top) exit
 	slt		$t2, $s7, $s6		#right < left
-	bne		$t2, $zero, exit	#if !(right < top) exit
+    bne		$t2, $zero, exit	#if !(right < top) exit
 
     beq     $t1, $zero, right
     addi    $t2, $zero, 1
@@ -885,40 +886,42 @@ exit:
     jr      $ra
 
 
+# All temp regesters besides t0 and t2 can be modified. Sum should be returned in t9
+# assume t3 has yPos and t4 has xPos
 sad:
 
-    sll     $t0, $t0, 2         # multiply yPos by 4 to get byte index
-    sll     $t1, $t1, 2         # multiply xPos by 4 to get byte index
-    li      $t2, 0              # initialize the sum to 0
-    mul     $t3, $t0, $s1       # store yPos*frameLength in t3
-    add     $t3, $t3, $t1       # t3 = yPos*frameLength + xPos
-    add     $t3, $t3, $a1       # t3 is the desired index of frame
-    add     $t4, $a2, $zero     # t4 is the desired index of window
-    li      $t5, 0              # i = 0
+    sll     $t3, $t3, 2         # multiply yPos by 4 to get byte index
+    sll     $t4, $t4, 2         # multiply xPos by 4 to get byte index
+    li      $t1, 0              # initialize the sum to 0
+    mul     $t5, $t3, $s1       # store yPos*frameLength in t3
+    add     $t5, $t5, $t4       # t5 = yPos*frameLength + xPos
+    add     $t5, $t5, $a1       # t5 is the desired index of frame
+    add     $t6, $a2, $zero     # t6 is the desired index of window
+    li      $t3, 0              # i = 0
 loopi:
-    slt     $t7, $t5, $s2       # t7 = i < windowHeight
+    slt     $t7, $t3, $s2       # t7 = i < windowHeight
     beq     $t7, $zero, exiti   # if i >= windowLength, exit loop
-    li      $t6, 0              # j = 0
+    li      $t4, 0              # j = 0
 loopj:
-    slt     $t7, $t6, $s3       # t7 = j < windowLength
+    slt     $t7, $t4, $s3       # t7 = j < windowLength
     beq     $t7, $zero, exitj   # if j >= windowLength, exit loop
-    lw      $t8, 0($t3)         # t8 contains the frame pixel
-    lw      $t9, 0($t4)         # t9 contains the window pixel
+    lw      $t8, 0($t5)         # t8 contains the frame pixel
+    lw      $t9, 0($t6)         # t9 contains the window pixel
     sub     $t8, $t8, $t9       # t8 contains the difference between frame pixel and window pixel
     abs     $t8, $t8            # t8 contains the absolute difference between frame pixel and window pixel
-    add     $t2, $t2, $t8       # add absolute difference to sum
-    addi    $t3, $t3, 4         # increment frame index
-    addi    $t4, $t4, 4         # increment window index
-    addi    $t6, $t6, 1         # ~~~~~~~ FIXME: Make the loop bounds correspond to frame or window offset to not have to do this
+    add     $t1, $t1, $t8       # add absolute difference to sum
+    addi    $t5, $t5, 4         # increment frame index
+    addi    $t6, $t6, 4         # increment window index
+    addi    $t4, $t4, 1         # ~~~~~~~ FIXME: Make the loop bounds correspond to frame or window offset to not have to do this
     j       loopj               # return to loopj start
 exitj:
     sub     $t7, $s1, $s3       # t7 = frameLength - windowLength
     sll     $t7, $t7, 2         # multiply t7 by 4 to get byte index
-    add     $t3, $t3, $t7       # increment frame index
-    addi    $t5, $t5, 1         # ~~~~~~~ FIXME: Make the loop bounds correspond to frame or window offset to not have to do this
+    add     $t5, $t5, $t7       # increment frame index
+    addi    $t3, $t3, 1         # ~~~~~~~ FIXME: Make the loop bounds correspond to frame or window offset to not have to do this
     j       loopi               # return to loopi start
 
 exiti:
-    add     $t9, $t2, $zero     # store sum in v0
+    add     $t9, $t1, $zero     # store sum in t9
 
 
