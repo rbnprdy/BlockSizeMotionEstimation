@@ -788,29 +788,66 @@ vbsme:
 	add		$s6, $zero, $zero
 	sub		$s7, $s1, $s3
 
+	li		$t0, 4200		# minSum starts at 4200	
     li      $t1, 0          # set direction to 0
 
     # Assume s0 has frameHeight, s1 has frameLength, s2 has windowHeight, s3 has windowLength
-    # Assume s4 has the min height, s5 has the max height, s6 has the min width, and s7 has the max width 
+    # Assume s4 has top, s5 has bottom, s6 has left, and s7 right 
 	# Assume t0 has yPos and t1 has xPos
 	
 mainLoop:
 	#while(!(top>bottom) || !(left>right))
 	# FIXME change following registers: $t0
-	slt		$t0, $s5, $s4		#bottom < top
-	bne		$t0, $zero, exit	#if !(bottom < top) exit
-	slt		$t0, $s7, $s6		#right < left
-	bne		$t0, $zero, exit	#if !(right < top) exit
+	slt		$t2, $s5, $s4		#bottom < top
+	bne		$t2, $zero, exit	#if !(bottom < top) exit
+	slt		$t2, $s7, $s6		#right < left
+	bne		$t2, $zero, exit	#if !(right < top) exit
 
     beq     $t1, $zero, right
-    addi    $t0, $zero, 1
-    beq     $t1, $t0, down
-    addi    $t0, $t0, 1
-    beq     $t1, $t0, left
+    addi    $t2, $zero, 1
+    beq     $t1, $t2 down
+    addi    $t2, $t2, 1
+    beq     $t1, $t2, left
 
 up:
+	add		$t2, $zero, $s5
+upLoop:
+	blt		$t2, $s4, exitRight
+	jal		sad
+	blt		$t9, $t1, updateCoordRight
+	addi	$t2, $t2, -1
+	jal		rightLoop
+updateCoordUp:
+	add		$t0, $zero, $t9
+	add		$v0, $zero, $t2
+	add		$v1, $zero, $s6
+	addi	$t2, $t2, -1
+	jal rightLoop
+exitUp:
+	addi $s6, $s6, 1
+	addi $t1, $zero, 0
+	jal mainLoop
 
 right:
+	add		$t2, $zero, $s6
+rightLoop:
+	blt		$s7, $t2, exitRight
+	jal		sad
+	blt		$t9, $t1, updateCoordRight
+	addi	$t2, $t2, 1
+	jal		rightLoop
+updateCoordRight:
+	add		$t0, $zero, $t9
+	add		$v0, $zero, $s4
+	add		$v1, $zero, $t2
+	addi	$t2, $t2, 1
+	jal rightLoop
+exitRight:
+	addi $s4, $s4, 1
+	addi $t1, $zero, 1
+	jal mainLoop
+	
+
 
 down:
 
@@ -850,6 +887,6 @@ exitj:
     j       loopi               # return to loopi start
 
 exiti:
-    add     $v0, $t2, $zero     # store sum in v0
+    add     $t9, $t2, $zero     # store sum in v0
 
 
