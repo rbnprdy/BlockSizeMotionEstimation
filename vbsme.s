@@ -782,8 +782,8 @@ vbsme:
     lw      $s1, 4($a0)
     lw      $s2, 8($a0)
     lw      $s3, 12($a0)
-	
-	add		$s4, $zero, $zer0
+
+    add		$s4, $zero, $zer0
 	sub		$s5, $s0, $s2
 	add		$s6, $zero, $zero
 	sub		$s7, $s1, $s3
@@ -807,8 +807,14 @@ mainLoop:
     beq     $t1, $t0, down
     addi    $t0, $t0, 1
     beq     $t1, $t0, left
-    addi    $t0, $t0, 1
-    beq     $t1, $t0, up
+
+up:
+
+right:
+
+down:
+
+left:
 
 sad:
 
