@@ -816,17 +816,17 @@ upLoop:
 	jal		sad
 	blt		$t9, $t1, updateCoordRight
 	addi	$t2, $t2, -1
-	jal		rightLoop
+	j       rightLoop
 updateCoordUp:
 	add		$t0, $zero, $t9
 	add		$v0, $zero, $t2
 	add		$v1, $zero, $s6
 	addi	$t2, $t2, -1
-	jal rightLoop
+	j       rightLoop
 exitUp:
-	addi $s6, $s6, 1
-	addi $t1, $zero, 0
-	jal mainLoop
+	addi    $s6, $s6, 1
+	addi    $t1, $zero, 0
+	j       mainLoop
 
 right:
 	add		$t2, $zero, $s6
@@ -835,20 +835,18 @@ rightLoop:
 	jal		sad
 	blt		$t9, $t1, updateCoordRight
 	addi	$t2, $t2, 1
-	jal		rightLoop
+	j       rightLoop
 updateCoordRight:
 	add		$t0, $zero, $t9
 	add		$v0, $zero, $s4
 	add		$v1, $zero, $t2
 	addi	$t2, $t2, 1
-	jal rightLoop
+	j       rightLoop
 exitRight:
-	addi $s4, $s4, 1
-	addi $t1, $zero, 1
-	jal mainLoop
+	addi    $s4, $s4, 1
+	addi    $t1, $zero, 1
+    j       mainLoop
 	
-
-
 down:
     add     $t2, $zero, $s4     # t2 = i = top
 loopDown:
