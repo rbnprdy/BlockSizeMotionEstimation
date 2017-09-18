@@ -778,6 +778,8 @@ vbsme:
     li      $v1, 0
 
     # insert your code here
+    addi    $sp, $sp, -4
+    sw      $ra, 0($sp)
 
     lw      $s0, 0($a0)
     lw      $s1, 4($a0)
@@ -814,16 +816,18 @@ up:
 	add		$t2, $zero, $s5
 upLoop:
 	blt		$t2, $s4, exitRight
+    add     $t3, $zero, $t2     # t3 = i
+    add     $t4, $zero, $s6     # t4 = left
 	jal		sad
-	blt		$t9, $t1, updateCoordRight
+	blt		$t9, $t0, updateCoordRight
 	addi	$t2, $t2, -1
-	j       rightLoop
+	j       upLoop
 updateCoordUp:
 	add		$t0, $zero, $t9
 	add		$v0, $zero, $t2
 	add		$v1, $zero, $s6
 	addi	$t2, $t2, -1
-	j       rightLoop
+	j       upLoop
 exitUp:
 	addi    $s6, $s6, 1
 	addi    $t1, $zero, 0
@@ -833,8 +837,10 @@ right:
 	add		$t2, $zero, $s6
 rightLoop:
 	blt		$s7, $t2, exitRight
+    add     $t3, $zero, $s4     # t3 = top
+    add     $t4, $zero, $t2     # t4 = i
 	jal		sad
-	blt		$t9, $t1, updateCoordRight
+	blt		$t9, $t0, updateCoordRight
 	addi	$t2, $t2, 1
 	j       rightLoop
 updateCoordRight:
@@ -852,9 +858,11 @@ down:
     add     $t2, $zero, $s4     # t2 = i = top
 loopDown:
     blt     $s5, $t2, exitDown  # if bottom < i, exit
+    add     $t3, $zero, $t2     # t3 = i
+    add     $t4, $zero, $s7     # t4 = right
     jal     sad                 # Assume SAD will be in $t9 after returning
-    bge     $t9, $t3, skipDown  # if tempSum >= minSum, branch
-    add     $t3, $t9, $zero     # minSum = tempSum
+    bge     $t9, $t0, skipDown  # if tempSum >= minSum, branch
+    add     $t0, $t9, $zero     # minSum = tempSum
     add     $v0, $t2, $zero     # v0 = i
     add     $v1, $s7, $zero     # v1 = right
 skipDown:
@@ -869,13 +877,15 @@ left:
     add     $t2, $zero, $s7     # t2 = i = right
 loopLeft:
     blt     $t2, $s6, exitLeft  # if i < left, exit
+    add     $t3, $zero, $t2     # t3 = i
+    add     $t4, $zero, $s5     # t4 = bottom
     jal     sad                 # Assume SAD will be in $t9 after returning
-    bge     $t9, $t3, skipLeft  # if tempSum >= minSum, branch
-    add     $t3, $t9, $zero     # minSum = tempSum
+    bge     $t9, $t0, skipLeft  # if tempSum >= minSum, branch
+    add     $t0, $t9, $zero     # minSum = tempSum
     add     $v0, $s5, $zero     # v0 = bottom
     add     $v1, $t2, $zero     # v1 = i
 skipLeft:
-    addi    $t2, $t2, 1         # i++
+    addi    $t2, $t2, -1         # i++
     j       loopLeft            # loop
 exitLeft:
     addi    $s5, $s5, -1        # bottom--
@@ -883,6 +893,8 @@ exitLeft:
     j       mainLoop
 
 exit:
+    lw      $ra, 0($sp)
+    addi    $sp, $sp, 4
     jr      $ra
 
 
@@ -923,5 +935,6 @@ exitj:
 
 exiti:
     add     $t9, $t1, $zero     # store sum in t9
+    jr      $ra
 
 
