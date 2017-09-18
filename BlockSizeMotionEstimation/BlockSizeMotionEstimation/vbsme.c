@@ -27,7 +27,7 @@ int* blockSizeMotionEstimation(int *asize, int *frame, int *window) {
     
     int dir = 0;
     
-    while (top <= bottom && left <= right) {
+    while (!(top > bottom) || !(left > right)) {
         int i = 0;
         if (dir == 0) {
             // Iterate from left to right
