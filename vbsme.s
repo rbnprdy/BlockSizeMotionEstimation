@@ -778,39 +778,31 @@ vbsme:
     li      $v1, 0
 
     # insert your code here
-    addi    $sp, $sp, -4
-    sw      $ra, 0($sp)
+    addi    $sp, $sp, -4        # make space on the stack
+    sw      $ra, 0($sp)         # store the return address
 
-    lw      $s0, 0($a0)
-    lw      $s1, 4($a0)
-    lw      $s2, 8($a0)
-    lw      $s3, 12($a0)
+    lw      $s0, 0($a0)         # s0 = frameHeight
+    lw      $s1, 4($a0)         # s1 = frameLength
+    lw      $s2, 8($a0)         # s2 = windowHeight
+    lw      $s3, 12($a0)        # s3 = windowLength
 
-    add		$s4, $zero, $zero
-	sub		$s5, $s0, $s2
-	add		$s6, $zero, $zero
-	sub		$s7, $s1, $s3
+    add		$s4, $zero, $zero   # s4 = top = 0
+	sub		$s5, $s0, $s2       # s5 = bottom = frameHeight - windowHeight
+	add		$s6, $zero, $zero   # s6 = left = 0
+	sub		$s7, $s1, $s3       # s7 = right = frameLength - windowLength
 
-	li		$t0, 4200		# minSum starts at 4200	
-    li      $t1, 0          # set direction to 0
-
-    # Assume s0 has frameHeight, s1 has frameLength, s2 has windowHeight, s3 has windowLength
-    # Assume s4 has top, s5 has bottom, s6 has left, and s7 right 
-	# Assume t0 has yPos and t1 has xPos
+	li		$t0, 4200           # minSum starts at 4200
+    li      $t1, 0              # set direction to 0
 	
 mainLoop:
-	#while(!(top>bottom) || !(left>right))
-	# FIXME change following registers: $t0
-	slt		$t2, $s5, $s4		#bottom < top
-	bne		$t2, $zero, exit	#if !(bottom < top) exit
-	slt		$t2, $s7, $s6		#right < left
-    bne		$t2, $zero, exit	#if !(right < top) exit
+    blt     $s5, $s4, exit      # if bottom < top, exit
+    blt     $s7, $s6, exit      # if right < left, exit
 
-    beq     $t1, $zero, right
-    addi    $t2, $zero, 1
-    beq     $t1, $t2, down
-    addi    $t2, $t2, 1
-    beq     $t1, $t2, left
+    beq     $t1, $zero, right   # if dir == 0, go to right
+    addi    $t2, $zero, 1       # t2 = 1
+    beq     $t1, $t2, down      # if dir == 1, go to down
+    addi    $t2, $t2, 1         # t2 = 2
+    beq     $t1, $t2, left      # if dir == 2, go to left. Else, go to up.
 
 up:
     add     $t2, $zero, $s5     # t2 = i = bottom
@@ -889,13 +881,14 @@ exitLeft:
     j       mainLoop
 
 exit:
-    lw      $ra, 0($sp)
-    addi    $sp, $sp, 4
-    jr      $ra
+    lw      $ra, 0($sp)         # load the original return address
+    addi    $sp, $sp, 4         # return the stack
+    jr      $ra                 # return
 
 
-# All temp regesters besides t0 and t2 can be modified. Sum should be returned in t9
-# assume t3 has yPos and t4 has xPos
+# Before calling this subroutine, place yPos in t3 and xPos in t4.
+# The sum of absolute differences will be returned in t9.
+# This function modifies all temp registers besides t0 and t2.
 sad:
 
     sll     $t3, $t3, 2         # multiply yPos by 4 to get byte index
@@ -920,13 +913,13 @@ loopj:
     add     $t1, $t1, $t8       # add absolute difference to sum
     addi    $t5, $t5, 4         # increment frame index
     addi    $t6, $t6, 4         # increment window index
-    addi    $t4, $t4, 1         # ~~~~~~~ FIXME: Make the loop bounds correspond to frame or window offset to not have to do this
+    addi    $t4, $t4, 1         # increment j
     j       loopj               # return to loopj start
 exitj:
     sub     $t7, $s1, $s3       # t7 = frameLength - windowLength
     sll     $t7, $t7, 2         # multiply t7 by 4 to get byte index
     add     $t5, $t5, $t7       # increment frame index
-    addi    $t3, $t3, 1         # ~~~~~~~ FIXME: Make the loop bounds correspond to frame or window offset to not have to do this
+    addi    $t3, $t3, 1         # increment i
     j       loopi               # return to loopi start
 
 exiti:
