@@ -808,18 +808,18 @@ mainLoop:
 
     beq     $t1, $zero, right
     addi    $t2, $zero, 1
-    beq     $t1, $t2 down
+    beq     $t1, $t2, down
     addi    $t2, $t2, 1
     beq     $t1, $t2, left
 
 up:
 	add		$t2, $zero, $s5
 upLoop:
-	blt		$t2, $s4, exitRight
+	blt		$t2, $s4, exitUp
     add     $t3, $zero, $t2     # t3 = i
     add     $t4, $zero, $s6     # t4 = left
 	jal		sad
-	blt		$t9, $t0, updateCoordRight
+	blt		$t9, $t0, updateCoordUp
 	addi	$t2, $t2, -1
 	j       upLoop
 updateCoordUp:
