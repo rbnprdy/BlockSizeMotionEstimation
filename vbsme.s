@@ -813,45 +813,41 @@ mainLoop:
     beq     $t1, $t2, left
 
 up:
-	add		$t2, $zero, $s5
-upLoop:
-	blt		$t2, $s4, exitUp
+    add     $t2, $zero, $s5     # t2 = i = bottom
+loopUp:
+    blt     $t2, $s4, exitUp    # if i < top, exit
     add     $t3, $zero, $t2     # t3 = i
     add     $t4, $zero, $s6     # t4 = left
-	jal		sad
-	blt		$t9, $t0, updateCoordUp
-	addi	$t2, $t2, -1
-	j       upLoop
-updateCoordUp:
-	add		$t0, $zero, $t9
-	add		$v0, $zero, $t2
-	add		$v1, $zero, $s6
-	addi	$t2, $t2, -1
-	j       upLoop
+    jal     sad                 # take sad
+    bge     $t9, $t0, skipUp    # if tempSum >= minSum, branch
+    add     $t0, $t9, $zero     # minSum = tempSum
+    add     $v0, $t2, $zero     # v0 = i
+    add     $v1, $s6, $zero     # v1 = left
+skipUp:
+    addi    $t2, $t2, -1        # i--
+    j       loopUp              # loop
 exitUp:
-	addi    $s6, $s6, 1
-	addi    $t1, $zero, 0
-	j       mainLoop
+    addi    $s6, $s6, 1         # left++
+    addi    $t1, $zero, 0       # dir = 0
+    j       mainLoop
 
 right:
-	add		$t2, $zero, $s6
-rightLoop:
-	blt		$s7, $t2, exitRight
+    add     $t2, $zero, $s6     # t2 = i = left
+loopRight:
+    blt     $s7, $t2, exitRight # if right < i, exit
     add     $t3, $zero, $s4     # t3 = top
     add     $t4, $zero, $t2     # t4 = i
-	jal		sad
-	blt		$t9, $t0, updateCoordRight
-	addi	$t2, $t2, 1
-	j       rightLoop
-updateCoordRight:
-	add		$t0, $zero, $t9
-	add		$v0, $zero, $s4
-	add		$v1, $zero, $t2
-	addi	$t2, $t2, 1
-	j       rightLoop
+    jal     sad                 # take sad
+    bge     $t9, $t0, skipRight # if tempSum >= minSum, branch
+    add     $t0, $t9, $zero     # minSum = tempSum
+    add     $v0, $s4, $zero     # v0 = top
+    add     $v1, $t2, $zero     # v1 = i
+skipRight:
+    addi    $t2, $t2, 1         # i++
+    j       loopRight           # loop
 exitRight:
-	addi    $s4, $s4, 1
-	addi    $t1, $zero, 1
+    addi    $s4, $s4, 1         # top++
+    addi    $t1, $zero, 1       # dir = 2
     j       mainLoop
 
 down:
@@ -877,15 +873,15 @@ left:
     add     $t2, $zero, $s7     # t2 = i = right
 loopLeft:
     blt     $t2, $s6, exitLeft  # if i < left, exit
-    add     $t3, $zero, $t2     # t3 = i
-    add     $t4, $zero, $s5     # t4 = bottom
+    add     $t3, $zero, $s5     # t3 = bottom
+    add     $t4, $zero, $t2     # t4 = i
     jal     sad                 # Assume SAD will be in $t9 after returning
     bge     $t9, $t0, skipLeft  # if tempSum >= minSum, branch
     add     $t0, $t9, $zero     # minSum = tempSum
     add     $v0, $s5, $zero     # v0 = bottom
     add     $v1, $t2, $zero     # v1 = i
 skipLeft:
-    addi    $t2, $t2, -1         # i++
+    addi    $t2, $t2, -1        # i++
     j       loopLeft            # loop
 exitLeft:
     addi    $s5, $s5, -1        # bottom--
