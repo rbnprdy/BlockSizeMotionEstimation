@@ -12,12 +12,12 @@ int* blockSizeMotionEstimation(int *asize, int *frame, int *window) {
     
     static int coords[2] = {0,0}; // Row, Column (v0, v1)
     
-    int minSum = 100000;
-    
     int frameHeight = asize[0];
     int frameLength = asize[1];
     int windowHeight = asize[2];
     int windowLength = asize[3];
+    
+    int minSum = windowHeight*windowLength*255;
     
     int top = 0;
     int bottom = frameHeight - windowHeight;

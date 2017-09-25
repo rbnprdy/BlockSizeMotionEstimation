@@ -787,11 +787,15 @@ vbsme:
     lw      $s3, 12($a0)        # s3 = windowLength
 
     add		$s4, $zero, $zero   # s4 = top = 0
-	sub		$s5, $s0, $s2       # s5 = bottom = frameHeight - windowHeight
-	add		$s6, $zero, $zero   # s6 = left = 0
-	sub		$s7, $s1, $s3       # s7 = right = frameLength - windowLength
+    sub     $s5, $s0, $s2       # s5 = bottom = frameHeight - windowHeight
+    add     $s6, $zero, $zero   # s6 = left = 0
+    sub     $s7, $s1, $s3       # s7 = right = frameLength - windowLength
 
-	li		$t0, 4200           # minSum starts at 4200
+    addi    $t0, $zero, 255
+    mult    $t0, $s2            # minSum starts at maximum possible value (windowHeight*windowLength*255)
+    mflo    $t0
+    mult    $t0, $s3
+    mflo    $t0
     li      $t1, 0              # set direction to 0
 	
 mainLoop:
