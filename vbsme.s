@@ -912,8 +912,12 @@ loopj:
     beq     $t7, $zero, exitj   # if j >= windowLength, exit loop
     lw      $t8, 0($t5)         # t8 contains the frame pixel
     lw      $t9, 0($t6)         # t9 contains the window pixel
+    bge     $t8, $t9, absV
+    sub     $t8, $t9, $t8
+    j       endAbs
+absV:
     sub     $t8, $t8, $t9       # t8 contains the difference between frame pixel and window pixel
-    abs     $t8, $t8            # t8 contains the absolute difference between frame pixel and window pixel
+endAbs:
     add     $t1, $t1, $t8       # add absolute difference to sum
     addi    $t5, $t5, 4         # increment frame index
     addi    $t6, $t6, 4         # increment window index
